@@ -29,8 +29,6 @@ def set_dataset(dataset_path, transform, options):
     num_worker = options['num_workers']
     my_datasets = datasets.ImageFolder(root=dataset_path, transform=transform)
 
-    print(f'dataset : {len(my_datasets)}')
-
     return torch.utils.data.DataLoader(my_datasets, batch_size=batch_size)
 
 def to_image(x):
@@ -44,11 +42,12 @@ def run_train(model, datatset, options):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=options['lr'],
                                 weight_decay=1e-5)
+
     max_epoch = options['epoch']
     for epoch in range(max_epoch):
         for data in datatset:
-            raw_image, _ = data
-            image = raw_image.to('cuda')
+            raw_images, _ = data
+            image = raw_images.to('cuda')
 
             output = model(image)
             loss = criterion(output, image)
@@ -77,6 +76,9 @@ def main():
 
     data_transform = create_transform()
     train_dataset = set_dataset(train_dataset_path, data_transform, options)
+    print(type(train_dataset))
+    print(type(data_transform))
+    #return
 
     model = AENet().to('cuda')
     run_train(model, train_dataset, options)
